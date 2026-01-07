@@ -12,207 +12,262 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             min-height: 100vh;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             padding: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
-            color: #333;
+            color: #2d3436;
             text-align: center;
             margin-bottom: 30px;
             font-size: 2.5em;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #e17055;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .warning-box h3 {
+            color: #d63031;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .form-group {
             margin-bottom: 25px;
         }
 
-        label {
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #2d3436;
             font-weight: 600;
             font-size: 1.1em;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            padding: 18px 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 15px;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
         }
 
-        .format-options {
+        .format-selector {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
+            gap: 20px;
+            margin: 20px 0;
         }
 
-        .format-option {
-            background: #f8f9fa;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            padding: 20px;
+        .format-card {
+            background: white;
+            border: 3px solid #dfe6e9;
+            border-radius: 15px;
+            padding: 25px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .format-option:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .format-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
 
-        .format-option.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+        .format-card.active {
+            border-color: #6a11cb;
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.05), rgba(37, 117, 252, 0.05));
         }
 
-        .format-option input {
-            display: none;
+        .format-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
+
+        .format-card:nth-child(1) .format-icon { color: #6a11cb; }
+        .format-card:nth-child(2) .format-icon { color: #2575fc; }
 
         .format-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 8px;
         }
 
         .format-desc {
-            color: #666;
-            font-size: 0.9em;
+            color: #636e72;
+            font-size: 0.95em;
+            line-height: 1.5;
         }
 
         .quality-selector {
             display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .quality-selector.active {
             display: block;
         }
 
-        select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            background: white;
-            cursor: pointer;
+        .quality-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
         }
 
-        .download-btn {
+        .quality-btn {
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #636e72;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .quality-btn:hover {
+            border-color: #6a11cb;
+            color: #6a11cb;
+        }
+
+        .quality-btn.active {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            border-color: #6a11cb;
+            color: white;
+        }
+
+        .action-button {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 30px 0;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(106, 17, 203, 0.4);
         }
 
-        .download-btn:disabled {
-            opacity: 0.5;
+        .action-button:active {
+            transform: translateY(-1px);
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
-        .video-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
             display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            z-index: 10;
         }
 
-        .video-info.active {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .video-thumbnail {
-            width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-
-        .video-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .video-duration {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            display: none;
-        }
-
-        .loading.active {
-            display: block;
+        .loading-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
         }
 
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
             width: 50px;
             height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #6a11cb;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -220,32 +275,204 @@
             100% { transform: rotate(360deg); }
         }
 
-        .warning {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #856404;
+        .video-info {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+            animation: slideUp 0.5s ease;
         }
 
-        .footer {
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-info.active {
+            display: block;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .video-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
             text-align: center;
-            margin-top: 30px;
-            color: #666;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .meta-item .label {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+        }
+
+        .meta-item .value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: white;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ff7675, #fd79a8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .download-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #636e72;
             font-size: 0.9em;
         }
 
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 4px solid #6a11cb;
+        }
+
+        .instructions h4 {
+            color: #2d3436;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #636e72;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #636e72;
+            font-size: 0.9em;
+            border-top: 1px solid #dfe6e9;
+            padding-top: 20px;
+        }
+
+        /* Responsive design */
         @media (max-width: 768px) {
             .container {
                 padding: 25px;
+                margin: 10px;
             }
-            
+
             h1 {
                 font-size: 2em;
             }
-            
-            .format-options {
+
+            .format-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .format-card {
+                padding: 20px;
+            }
+
+            .quality-buttons {
+                justify-content: center;
+            }
+
+            .quality-btn {
+                min-width: calc(50% - 5px);
+            }
+
+            input[type="text"] {
+                padding: 15px;
+            }
+
+            .action-button {
+                padding: 18px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.7em;
+            }
+
+            .quality-btn {
+                min-width: 100%;
+            }
+
+            .video-meta {
                 grid-template-columns: 1fr;
             }
         }
@@ -253,67 +480,541 @@
 </head>
 <body>
     <div class="container">
-        <h1>YouTube Converter</h1>
+        <h1>🎵 YouTube naar MP3/MP4 Converter</h1>
+        <p class="subtitle">Converteer YouTube video's naar MP3 audio of MP4 video in hoge kwaliteit</p>
         
-        <div class="warning">
-            ⚠️ <strong>Belangrijk:</strong> Download alleen video's waarvan je toestemming hebt van de eigenaar. 
-            Respecteer altijd het auteursrecht.
+        <div class="warning-box">
+            <h3>⚠️ BELANGRIJKE WAARSCHUWING</h3>
+            <p>Download alleen video's waar je toestemming voor hebt van de rechthebbende. 
+            Respecteer altijd het auteursrecht en de voorwaarden van YouTube. 
+            Deze tool is bedoeld voor persoonlijk, legaal gebruik.</p>
         </div>
-        
+
         <div class="form-group">
-            <label for="youtube-url">YouTube URL:</label>
-            <input type="text" id="youtube-url" 
-                   placeholder="https://www.youtube.com/watch?v=..." 
-                   autocomplete="off">
+            <div class="input-group">
+                <label for="youtubeUrl">📺 YouTube URL:</label>
+                <input type="text" 
+                       id="youtubeUrl" 
+                       placeholder="https://www.youtube.com/watch?v=... of https://youtu.be/..."
+                       autocomplete="off">
+            </div>
         </div>
-        
+
         <div class="form-group">
-            <label>Kies formaat:</label>
-            <div class="format-options">
-                <div class="format-option" data-format="mp3">
-                    <div class="format-title">🎵 MP3 (Audio)</div>
-                    <div class="format-desc">Alleen geluid, klein bestand</div>
-                    <input type="radio" name="format" value="mp3" checked>
+            <label>Kies download formaat:</label>
+            <div class="format-selector">
+                <div class="format-card active" data-format="mp3">
+                    <div class="format-icon">🎵</div>
+                    <div class="format-title">MP3 Audio</div>
+                    <div class="format-desc">Perfect voor muziek, podcasts of audioboeken. Klein bestandsformaat.</div>
                 </div>
-                <div class="format-option" data-format="mp4">
-                    <div class="format-title">🎬 MP4 (Video)</div>
-                    <div class="format-desc">Video + geluid, hogere kwaliteit</div>
-                    <input type="radio" name="format" value="mp4">
+                <div class="format-card" data-format="mp4">
+                    <div class="format-icon">🎬</div>
+                    <div class="format-title">MP4 Video</div>
+                    <div class="format-desc">Volledige video met audio. Verschillende kwaliteiten beschikbaar.</div>
                 </div>
             </div>
         </div>
-        
-        <div class="form-group">
-            <div class="quality-selector" id="quality-selector">
-                <label for="quality">Video kwaliteit:</label>
-                <select id="quality">
-                    <option value="360">360p (Laag)</option>
-                    <option value="480">480p (Gemiddeld)</option>
-                    <option value="720" selected>720p (HD)</option>
-                    <option value="1080">1080p (Full HD)</option>
-                </select>
+
+        <div class="quality-selector" id="qualitySelector">
+            <label>Video kwaliteit:</label>
+            <div class="quality-buttons">
+                <button class="quality-btn active" data-quality="360">360p</button>
+                <button class="quality-btn" data-quality="480">480p</button>
+                <button class="quality-btn" data-quality="720">720p HD</button>
+                <button class="quality-btn" data-quality="1080">1080p Full HD</button>
             </div>
         </div>
-        
-        <button id="download-btn" class="download-btn">
-            Converteren en Downloaden
+
+        <button class="action-button" id="convertBtn">
+            <span class="button-text">🎬 CONVERTEREN EN DOWNLOADEN</span>
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+            </div>
         </button>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Video informatie ophalen...</p>
+
+        <div class="download-info" id="downloadInfo">
+            De download start automatisch na conversie
         </div>
-        
-        <div class="video-info" id="video-info">
-            <div id="video-details"></div>
+
+        <div class="video-info" id="videoInfo">
+            <!-- Video info wordt hier ingeladen -->
         </div>
-        
-        <div class="footer">
-            <p>Deze tool werkt volledig in je browser. Er worden geen gegevens naar externe servers verstuurd.</p>
+
+        <div class="error-message" id="errorMessage">
+            <strong>⚠️ Fout:</strong> <span id="errorText"></span>
         </div>
+
+        <div class="success-message" id="successMessage">
+            <strong>✅ Succes!</strong> <span id="successText"></span>
+        </div>
+
+        <div class="instructions">
+            <h4>📋 Hoe werkt het?</h4>
+            <ol>
+                <li>Plak de YouTube URL in het bovenste veld</li>
+                <li>Kies MP3 (alleen audio) of MP4 (video+audio)</li>
+                <li>Selecteer de gewenste kwaliteit (voor MP4)</li>
+                <li>Klik op "Converteren en Downloaden"</li>
+                <li>Wacht even terwijl de video wordt verwerkt</li>
+                <li>Het bestand wordt automatisch gedownload</li>
+            </ol>
+        </div>
+
+        <footer>
+            <p>© 2024 YouTube Converter | Werkt volledig in je browser | Geen uploads naar servers</p>
+        </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
-    <script src="script.js"></script>
+    <script>
+        class YouTubeConverter {
+            constructor() {
+                this.youtubeUrlInput = document.getElementById('youtubeUrl');
+                this.convertBtn = document.getElementById('convertBtn');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+                this.videoInfo = document.getElementById('videoInfo');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.successMessage = document.getElementById('successMessage');
+                this.errorText = document.getElementById('errorText');
+                this.successText = document.getElementById('successText');
+                this.qualitySelector = document.getElementById('qualitySelector');
+                this.downloadInfo = document.getElementById('downloadInfo');
+                
+                this.selectedFormat = 'mp3';
+                this.selectedQuality = '720';
+                this.currentVideoInfo = null;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.showApp();
+            }
+            
+            setupEventListeners() {
+                // Format card selection
+                document.querySelectorAll('.format-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.setFormat(card.dataset.format);
+                    });
+                });
+                
+                // Quality button selection
+                document.querySelectorAll('.quality-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.setQuality(btn.dataset.quality);
+                    });
+                });
+                
+                // Convert button
+                this.convertBtn.addEventListener('click', () => {
+                    this.processVideo();
+                });
+                
+                // Enter key on input
+                this.youtubeUrlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.processVideo();
+                    }
+                });
+            }
+            
+            setFormat(format) {
+                this.selectedFormat = format;
+                
+                // Update UI
+                document.querySelectorAll('.format-card').forEach(card => {
+                    if (card.dataset.format === format) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+                
+                // Show/hide quality selector
+                if (format === 'mp4') {
+                    this.qualitySelector.classList.add('active');
+                } else {
+                    this.qualitySelector.classList.remove('active');
+                }
+                
+                // Update button text
+                const formatText = format === 'mp3' ? 'MP3 Audio' : 'MP4 Video';
+                this.convertBtn.querySelector('.button-text').textContent = 
+                    `🎬 ${formatText} DOWNLOADEN`;
+            }
+            
+            setQuality(quality) {
+                this.selectedQuality = quality;
+                
+                // Update UI
+                document.querySelectorAll('.quality-btn').forEach(btn => {
+                    if (btn.dataset.quality === quality) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            async processVideo() {
+                const url = this.youtubeUrlInput.value.trim();
+                
+                // Validate URL
+                if (!this.isValidYouTubeUrl(url)) {
+                    this.showError('Voer een geldige YouTube URL in');
+                    return;
+                }
+                
+                // Show loading
+                this.showLoading();
+                
+                try {
+                    // Get video info
+                    const videoId = this.extractVideoId(url);
+                    if (!videoId) {
+                        throw new Error('Kon video ID niet vinden in URL');
+                    }
+                    
+                    // Show video info
+                    await this.showVideoInfo(videoId);
+                    
+                    // Ask for confirmation
+                    if (await this.askConfirmation()) {
+                        // Start download process
+                        await this.downloadVideo(videoId);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showError(error.message);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            
+            isValidYouTubeUrl(url) {
+                const patterns = [
+                    /^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=([\w-]+)/,
+                    /^(https?:\/\/)?(www\.)?youtu\.be\/([\w-]+)/,
+                    /^(https?:\/\/)?(www\.)?youtube\.com\/embed\/([\w-]+)/,
+                    /^(https?:\/\/)?(www\.)?youtube\.com\/v\/([\w-]+)/
+                ];
+                
+                return patterns.some(pattern => pattern.test(url));
+            }
+            
+            extractVideoId(url) {
+                const patterns = [
+                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([\w-]+)/,
+                    /(?:v=|\/)([\w-]{11})(?:[&\?]|$)/
+                ];
+                
+                for (const pattern of patterns) {
+                    const match = url.match(pattern);
+                    if (match && match[1]) {
+                        return match[1];
+                    }
+                }
+                
+                return null;
+            }
+            
+            async showVideoInfo(videoId) {
+                // Simulate fetching video info
+                // In a real app, you would use YouTube API here
+                
+                // Show loading in video info
+                this.videoInfo.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="spinner" style="width: 30px; height: 30px; margin: 0 auto 15px;"></div>
+                        <p style="color: white;">Video informatie ophalen...</p>
+                    </div>
+                `;
+                this.videoInfo.classList.add('active');
+                
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // Mock video info (in real app, fetch from YouTube API)
+                const videoData = {
+                    id: videoId,
+                    title: `YouTube Video - ${videoId}`,
+                    thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                    thumbnailFallback: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                    channel: 'YouTube Kanaal',
+                    duration: '5:30',
+                    views: '1,234,567'
+                };
+                
+                // Display video info
+                this.videoInfo.innerHTML = `
+                    <img src="${videoData.thumbnail}" 
+                         onerror="this.src='${videoData.thumbnailFallback}'"
+                         class="video-thumbnail" 
+                         alt="Video thumbnail">
+                    <div class="video-title">${this.escapeHtml(videoData.title)}</div>
+                    <div class="video-meta">
+                        <div class="meta-item">
+                            <div class="label">📺 Kanaal</div>
+                            <div class="value">${this.escapeHtml(videoData.channel)}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">⏱️ Duur</div>
+                            <div class="value">${videoData.duration}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">👁️ Weergaven</div>
+                            <div class="value">${videoData.views}</div>
+                        </div>
+                    </div>
+                `;
+                
+                this.currentVideoInfo = videoData;
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            async askConfirmation() {
+                return new Promise((resolve) => {
+                    const title = this.currentVideoInfo?.title || 'deze video';
+                    const format = this.selectedFormat === 'mp3' ? 'MP3 audio' : 'MP4 video';
+                    
+                    // Create custom confirmation modal
+                    const modal = this.createConfirmationModal(
+                        `Weet je zeker dat je "${title.substring(0, 50)}..." wilt downloaden?`,
+                        `Formaat: ${format.toUpperCase()}${this.selectedFormat === 'mp4' ? ` (${this.selectedQuality}p)` : ''}`,
+                        resolve
+                    );
+                    
+                    document.body.appendChild(modal);
+                });
+            }
+            
+            createConfirmationModal(title, details, callback) {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                    animation: fadeIn 0.3s ease;
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                        border-radius: 20px;
+                        max-width: 500px;
+                        width: 90%;
+                        text-align: center;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    ">
+                        <div style="font-size: 72px; margin-bottom: 20px;">⚠️</div>
+                        <h3 style="color: #2d3436; margin-bottom: 15px;">Download Bevestiging</h3>
+                        <p style="color: #636e72; margin-bottom: 10px; line-height: 1.5;">${title}</p>
+                        <p style="color: #6a11cb; font-weight: bold; margin-bottom: 20px;">${details}</p>
+                        
+                        <div style="
+                            background: #ffeaa7;
+                            padding: 15px;
+                            border-radius: 10px;
+                            margin-bottom: 25px;
+                            text-align: left;
+                        ">
+                            <p style="color: #d63031; margin: 0; font-size: 14px;">
+                                <strong>Controleer of je toestemming hebt van de rechthebbende!</strong><br>
+                                Download alleen voor persoonlijk, legaal gebruik.
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button id="cancelBtn" style="
+                                padding: 15px 30px;
+                                background: #dfe6e9;
+                                color: #2d3436;
+                                border: none;
+                                border-radius: 10px;
+                                font-size: 16px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                flex: 1;
+                            ">
+                                Annuleren
+                            </button>
+                            <button id="confirmBtn" style="
+                                padding: 15px 30px;
+                                background: linear-gradient(135deg, #6a11cb, #2575fc);
+                                color: white;
+                                border: none;
+                                border-radius: 10px;
+                                font-size: 16px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                flex: 1;
+                            ">
+                                Bevestigen & Downloaden
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modal.querySelector('#cancelBtn').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                    callback(false);
+                });
+                
+                modal.querySelector('#confirmBtn').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                    callback(true);
+                });
+                
+                return modal;
+            }
+            
+            async downloadVideo(videoId) {
+                try {
+                    // Show preparing message
+                    this.showSuccess('Video wordt voorbereid voor download...');
+                    
+                    // Simulate processing time
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Create fake download (in real app, this would be a real download)
+                    this.simulateDownload(videoId);
+                    
+                } catch (error) {
+                    throw new Error('Download mislukt: ' + error.message);
+                }
+            }
+            
+            simulateDownload(videoId) {
+                // In a real app, you would:
+                // 1. Use a backend service to download from YouTube
+                // 2. Convert to selected format
+                // 3. Provide download link
+                
+                // For demonstration purposes only
+                const format = this.selectedFormat;
+                const quality = format === 'mp4' ? ` (${this.selectedQuality}p)` : '';
+                const filename = `youtube_${videoId}_${Date.now()}.${format}`;
+                
+                // Create fake download link
+                const blob = new Blob(['Dit is een demo bestand. In de echte app zou hier je video staan.'], 
+                                     { type: format === 'mp3' ? 'audio/mpeg' : 'video/mp4' });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                
+                // Trigger download
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show success message
+                this.showSuccess(`Download gestart: ${filename}`);
+                
+                // Update download info
+                this.downloadInfo.innerHTML = `
+                    ✅ Download gestart! Bestand: <strong>${filename}</strong><br>
+                    <small>In de echte app zou dit je echte video zijn</small>
+                `;
+                
+                // Reset after delay
+                setTimeout(() => {
+                    this.downloadInfo.innerHTML = 'De download start automatisch na conversie';
+                }, 5000);
+            }
+            
+            showLoading() {
+                this.loadingOverlay.classList.add('active');
+                this.convertBtn.disabled = true;
+            }
+            
+            hideLoading() {
+                this.loadingOverlay.classList.remove('active');
+                this.convertBtn.disabled = false;
+            }
+            
+            showError(message) {
+                this.errorText.textContent = message;
+                this.errorMessage.classList.add('active');
+                this.successMessage.classList.remove('active');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    this.errorMessage.classList.remove('active');
+                }, 5000);
+            }
+            
+            showSuccess(message) {
+                this.successText.textContent = message;
+                this.successMessage.classList.add('active');
+                this.errorMessage.classList.remove('active');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    this.successMessage.classList.remove('active');
+                }, 5000);
+            }
+            
+            showApp() {
+                // Add some interactive animations
+                document.querySelectorAll('.format-card, .quality-btn, .action-button').forEach(el => {
+                    el.addEventListener('mousedown', () => {
+                        el.style.transform = 'scale(0.98)';
+                    });
+                    el.addEventListener('mouseup', () => {
+                        el.style.transform = '';
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        el.style.transform = '';
+                    });
+                });
+                
+                // Add example URL on click
+                this.youtubeUrlInput.addEventListener('click', () => {
+                    if (!this.youtubeUrlInput.value) {
+                        this.youtubeUrlInput.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+                        this.youtubeUrlInput.select();
+                    }
+                });
+            }
+        }
+        
+        // Initialize the converter when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const converter = new YouTubeConverter();
+            
+            // Make converter available globally for debugging
+            window.converter = converter;
+            
+            // Add some demo functionality
+            console.log('YouTube Converter geladen! ✅');
+            console.log('Gebruik: converter.processVideo() om te testen');
+        });
+        
+        // Add some utility functions to window
+        window.testConverter = function() {
+            const urlInput = document.getElementById('youtubeUrl');
+            urlInput.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+            window.converter.processVideo();
+        };
+    </script>
 </body>
 </html>
