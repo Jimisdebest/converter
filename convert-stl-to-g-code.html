@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL to G-code converter - Jim Convert</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 1.5rem;
+        }
+
+        .box {
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 350;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+            margin-bottom: 2.5rem;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .knoppen {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .knop {
+            background: transparent;
+            border: 1.5px solid #333;
+            border-radius: 40px;
+            padding: 0.9rem 2.5rem;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: #eee;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+            background-color: #0d0d0d;
+        }
+
+        .knop:hover {
+            border-color: #666;
+            color: #fff;
+            background-color: #151515;
+        }
+
+        @media (max-width: 480px) {
+            .box { padding: 2rem 1.2rem; }
+            h1 { font-size: 1.7rem; }
+            .knop { 
+                min-width: 140px; 
+                font-size: 1.2rem; 
+                padding: 0.8rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <h1>Hoe wilt u STL naar G‑code exporteren?</h1>
+            <div class="knoppen">
+                <a href="voorinstelling" class="knop">Voorinstelling</a>
+                <a href="aangepast" class="knop">Aangepast</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
