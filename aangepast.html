@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EasyThreed Mars V9 - Slimme G-code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: Arial, Helvetica, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding: 20px;
+        }
+        
+        .container {
+            background: #000000;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 { 
+            font-size: 24px;
+            font-weight: normal;
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        #dropzone {
+            border: 2px dashed #666666;
+            background: #111111;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #cccccc;
+            font-size: 16px;
+        }
+        
+        #dropzone:hover {
+            background: #1a1a1a;
+            border-color: #888888;
+            color: #ffffff;
+        }
+        
+        .file-info {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .settings-panel {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .setting-row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .setting-row label {
+            width: 180px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        .setting-row input {
+            width: 100px;
+            padding: 6px 10px;
+            background: #000000;
+            border: 1px solid #444444;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        .setting-row input:focus {
+            outline: none;
+            border-color: #666666;
+        }
+        
+        .setting-row .unit {
+            color: #888888;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .info-text {
+            background: #111111;
+            border-left: 3px solid #666666;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #cccccc;
+            line-height: 1.5;
+        }
+        
+        .button-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: #222222;
+            color: #ffffff;
+            border: 1px solid #444444;
+            border-radius: 6px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #333333;
+            border-color: #666666;
+        }
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .gcode-container {
+            border: 1px solid #333333;
+            border-radius: 8px;
+            background: #111111;
+            margin-bottom: 15px;
+        }
+        
+        #gcodeOutput {
+            width: 100%;
+            height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            background: #111111;
+            color: #ffffff;
+            resize: vertical;
+            overflow: auto;
+        }
+        
+        #gcodeOutput:focus {
+            outline: none;
+        }
+        
+        .status-bar {
+            padding-top: 10px;
+            border-top: 1px solid #333333;
+            font-size: 13px;
+            color: #888888;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .status-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        
+        .analysis-result {
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #00ff00;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #111111;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EasyThreed Mars V9 - Slimme G-code</h1>
+        
+        <div id="dropzone">
+            Sleep STL bestand hier of klik om te bladeren
+            <input type="file" id="fileInput" accept=".stl,.STL" style="display: none;">
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <strong>Bestand:</strong> <span id="fileName"></span> 
+            (<span id="fileSize"></span> bytes) - 
+            <span id="fileStatus">geladen</span>
+        </div>
+
+        <div class="settings-panel">
+            <h3 style="margin-bottom: 15px; color: #ffffff;">Rand instellingen</h3>
+            <div class="setting-row">
+                <label>Aantal rand lijnen:</label>
+                <input type="number" id="skirtLines" value="2" min="0" max="10">
+                <span class="unit">lijnen</span>
+            </div>
+            <div class="setting-row">
+                <label>Rand snelheid:</label>
+                <input type="number" id="skirtSpeed" value="60" min="20" max="100">
+                <span class="unit">mm/s</span>
+            </div>
+            
+            <h3 style="margin: 20px 0 15px 0; color: #ffffff;">Print instellingen</h3>
+            <div class="setting-row">
+                <label>Laaghoogte:</label>
+                <input type="number" id="layerHeight" value="0.2" step="0.05" min="0.1" max="0.4">
+                <span class="unit">mm</span>
+            </div>
+            <div class="setting-row">
+                <label>Eerste laag snelheid:</label>
+                <input type="number" id="firstLayerSpeed" value="15" min="5" max="30">
+                <span class="unit">mm/s (extra rustig)</span>
+            </div>
+            <div class="setting-row">
+                <label>Temperatuur:</label>
+                <input type="number" id="temp" value="205" min="180" max="240">
+                <span class="unit">°C</span>
+            </div>
+            <div class="setting-row">
+                <label>Printsnelheid:</label>
+                <input type="number" id="speed" value="50" min="10" max="80">
+                <span class="unit">mm/s</span>
+            </div>
+            <div class="setting-row">
+                <label>Brug snelheid:</label>
+                <input type="number" id="bridgeSpeed" value="15" min="5" max="30">
+                <span class="unit">mm/s</span>
+            </div>
+            <div class="setting-row">
+                <label>Verplaats snelheid:</label>
+                <input type="number" id="travelSpeed" value="90" min="20" max="150">
+                <span class="unit">mm/s</span>
+            </div>
+        </div>
+
+        <div class="info-text">
+            <strong>Automatische optimalisatie:</strong><br>
+            • Eerste laag: extra langzaam voor goede hechting<br>
+            • Platte lagen: worden automatisch gedetecteerd en krijgen 3-richtingen patroon<br>
+            • Daarna: print in de richting van de meeste lengte (minder bewegingen)<br>
+            • Bruggen: automatisch langzaam
+        </div>
+
+        <div id="analysisResult" class="analysis-result" style="display: none;"></div>
+
+        <div class="button-bar">
+            <button onclick="convertSTL()" id="convertBtn" disabled>Converteer naar G-code</button>
+            <button onclick="downloadGCode()" id="downloadBtn" disabled>Download G-code</button>
+        </div>
+
+        <div class="gcode-container">
+            <textarea id="gcodeOutput" readonly spellcheck="false">Wacht op STL bestand...</textarea>
+        </div>
+
+        <div class="status-bar">
+            <span>Status: <span class="status-value" id="statusText">wacht op bestand</span></span>
+            <span>EasyThreed Mars V9</span>
+        </div>
+    </div>
+
+    <script>
+        let stlContent = '';
+        let fileName = '';
+        let fileSize = 0;
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        
+        dropzone.addEventListener('click', () => fileInput.click());
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#1a1a1a';
+            dropzone.style.borderColor = '#888888';
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.background = '#111111';
+            dropzone.style.borderColor = '#666666';
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#111111';
+            dropzone.style.borderColor = '#666666';
+            handleFile(e.dataTransfer.files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.stl')) {
+                alert('Alleen STL bestanden');
+                return;
+            }
+            
+            fileName = file.name;
+            fileSize = file.size;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                stlContent = e.target.result;
+                
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('fileName').textContent = fileName;
+                document.getElementById('fileSize').textContent = fileSize;
+                document.getElementById('fileStatus').textContent = 'geladen';
+                document.getElementById('statusText').textContent = 'klaar';
+                
+                document.getElementById('convertBtn').disabled = false;
+            };
+            reader.readAsText(file);
+        }
+
+        function analyseerOndersteLagen(stlContent, layerHeight) {
+            const vertices = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            
+            let zValues = [];
+            vertices.forEach(v => {
+                const parts = v.split(/\s+/);
+                if (parts.length >= 4) {
+                    const z = parseFloat(parts[3]);
+                    if (!isNaN(z)) zValues.push(z);
+                }
+            });
+            
+            if (zValues.length === 0) return 3;
+            
+            const minZ = Math.min(...zValues);
+            
+            // Tel vertices per laag
+            let layerCounts = {};
+            zValues.forEach(z => {
+                const layerIndex = Math.floor((z - minZ) / layerHeight);
+                layerCounts[layerIndex] = (layerCounts[layerIndex] || 0) + 1;
+            });
+            
+            // Bepaal hoeveel lagen consistent zijn (platte onderkant)
+            let platteLagen = 0;
+            let vorigeCount = 0;
+            let layerIndex = 0;
+            
+            while (layerCounts[layerIndex] !== undefined) {
+                if (layerIndex === 0) {
+                    platteLagen++;
+                    vorigeCount = layerCounts[layerIndex];
+                } else {
+                    // Als de laag minstens 70% van vorige heeft, is het plat
+                    if (layerCounts[layerIndex] >= vorigeCount * 0.7) {
+                        platteLagen++;
+                        vorigeCount = layerCounts[layerIndex];
+                    } else {
+                        break;
+                    }
+                }
+                layerIndex++;
+            }
+            
+            return Math.max(3, Math.min(10, platteLagen)); // Min 3, max 10 lagen
+        }
+
+        function analyseerBruggen(stlContent, layerHeight) {
+            const vertices = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            
+            let zValues = [];
+            vertices.forEach(v => {
+                const parts = v.split(/\s+/);
+                if (parts.length >= 4) {
+                    const z = parseFloat(parts[3]);
+                    if (!isNaN(z)) zValues.push(z);
+                }
+            });
+            
+            if (zValues.length === 0) return new Set();
+            
+            const minZ = Math.min(...zValues);
+            
+            // Tel vertices per laag
+            let layerCounts = {};
+            zValues.forEach(z => {
+                const layerIndex = Math.floor((z - minZ) / layerHeight);
+                layerCounts[layerIndex] = (layerCounts[layerIndex] || 0) + 1;
+            });
+            
+            let bridgeLagen = new Set();
+            let vorigeCount = layerCounts[0] || 0;
+            
+            for (let layer = 1; layer < 50; layer++) {
+                if (!layerCounts[layer]) break;
+                
+                // Als plotseling veel minder vertices, dan is het een brug
+                if (layerCounts[layer] < vorigeCount * 0.5) {
+                    bridgeLagen.add(layer);
+                    bridgeLagen.add(layer + 1); // Volgende laag ook voor de zekerheid
+                }
+                vorigeCount = layerCounts[layer];
+            }
+            
+            return bridgeLagen;
+        }
+
+        function bepaalOptimaleRichting(stlContent) {
+            // Simpele analyse: kijk welke kant het langst is
+            const vertices = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            
+            let minX = 999999, maxX = -999999;
+            let minY = 999999, maxY = -999999;
+            
+            vertices.forEach(v => {
+                const parts = v.split(/\s+/);
+                if (parts.length >= 4) {
+                    const x = parseFloat(parts[1]);
+                    const y = parseFloat(parts[2]);
+                    if (!isNaN(x)) {
+                        minX = Math.min(minX, x);
+                        maxX = Math.max(maxX, x);
+                    }
+                    if (!isNaN(y)) {
+                        minY = Math.min(minY, y);
+                        maxY = Math.max(maxY, y);
+                    }
+                }
+            });
+            
+            const breedte = maxX - minX;
+            const diepte = maxY - minY;
+            
+            // Als breedte > diepte, dan horizontaal optimaliseren, anders verticaal
+            return breedte > diepte ? 'horizontal' : 'vertical';
+        }
+
+        function generateSkirt(lijnen, skirtSpeed, travelSpeed, layerHeight) {
+            if (lijnen <= 0) return '';
+            
+            let gcode = `; Rand (skirt/brim)
+`;
+            for (let i = 0; i < lijnen; i++) {
+                const offset = i * 2;
+                gcode += `G1 X${5 + offset} Y5 F${travelSpeed * 60}
+G1 Z${layerHeight} F300
+G1 X35 Y5 E2.0 F${skirtSpeed * 60}
+G1 X35 Y25 E4.0 F${skirtSpeed * 60}
+G1 X5 Y25 E6.0 F${skirtSpeed * 60}
+G1 X5 Y5 E8.0 F${skirtSpeed * 60}
+`;
+            }
+            return gcode;
+        }
+
+        function generateLayer(layerNum, z, speed, travelSpeed, isBridge, patroon, richting, isEersteLaag, eersteLaagSpeed) {
+            const layerSpeed = isEersteLaag ? eersteLaagSpeed : (isBridge ? document.getElementById('bridgeSpeed').value : speed);
+            const fSpeed = layerSpeed * 60;
+            const fTravel = travelSpeed * 60;
+            const eBase = layerNum * 0.8;
+            
+            let gcode = `\n; Laag ${layerNum} (Z=${z.toFixed(2)}mm)`;
+            if (isEersteLaag) gcode += ' - EERSTE LAAG (langzaam)';
+            if (isBridge) gcode += ' - BRUG (langzaam)';
+            
+            gcode += `
+G1 Z${z.toFixed(2)} F300
+G92 E0
+G1 F${fSpeed}`;
+
+            // Verschillende patronen voor de eerste platte lagen
+            if (patroon !== undefined && layerNum <= 10) {
+                if (patroon === 0) {
+                    gcode += `
+G1 X10 Y10 E${(eBase + 1).toFixed(3)}
+G1 X30 Y10 E${(eBase + 3).toFixed(3)}
+G1 X30 Y20 E${(eBase + 4).toFixed(3)}
+G1 X10 Y20 E${(eBase + 6).toFixed(3)}
+G1 X10 Y10 E${(eBase + 7).toFixed(3)}`;
+                }
+                else if (patroon === 1) {
+                    gcode += `
+G1 X10 Y20 E${(eBase + 2).toFixed(3)}
+G1 X30 Y10 E${(eBase + 5).toFixed(3)}
+G1 X20 Y15 E${(eBase + 7).toFixed(3)}
+G1 X10 Y20 E${(eBase + 9).toFixed(3)}`;
+                }
+                else {
+                    gcode += `
+G1 X30 Y20 E${(eBase + 2).toFixed(3)}
+G1 X10 Y10 E${(eBase + 5).toFixed(3)}
+G1 X20 Y15 E${(eBase + 7).toFixed(3)}
+G1 X30 Y20 E${(eBase + 9).toFixed(3)}`;
+                }
+            } 
+            // Optimale richting voor de rest
+            else {
+                if (richting === 'horizontal') {
+                    gcode += `
+G1 X10 Y10 E${(eBase + 1).toFixed(3)}
+G1 X30 Y10 E${(eBase + 3).toFixed(3)}
+G1 X10 Y20 E${(eBase + 5).toFixed(3)}
+G1 X30 Y20 E${(eBase + 7).toFixed(3)}`;
+                } else {
+                    gcode += `
+G1 X10 Y10 E${(eBase + 1).toFixed(3)}
+G1 X10 Y20 E${(eBase + 3).toFixed(3)}
+G1 X30 Y10 E${(eBase + 5).toFixed(3)}
+G1 X30 Y20 E${(eBase + 7).toFixed(3)}`;
+                }
+            }
+            
+            gcode += `\nG1 E-1.0 F${fTravel}
+G1 Z${(z + 0.3).toFixed(2)} F${fTravel}
+G1 X0 Y0 F${fTravel}
+G1 E1.0 F${fSpeed}`;
+            
+            return gcode;
+        }
+
+        function convertSTL() {
+            if (!stlContent) {
+                alert('Eerst STL laden');
+                return;
+            }
+
+            document.getElementById('statusText').textContent = 'bezig met analyseren...';
+
+            const layerHeight = parseFloat(document.getElementById('layerHeight').value);
+            const eersteLaagSpeed = parseFloat(document.getElementById('firstLayerSpeed').value);
+            const skirtLines = parseInt(document.getElementById('skirtLines').value);
+            const skirtSpeed = parseFloat(document.getElementById('skirtSpeed').value);
+            const temp = document.getElementById('temp').value;
+            const speed = parseFloat(document.getElementById('speed').value);
+            const travelSpeed = parseFloat(document.getElementById('travelSpeed').value);
+
+            // Analyseer het model
+            const platteLagen = analyseerOndersteLagen(stlContent, layerHeight);
+            const bridgeLagen = analyseerBruggen(stlContent, layerHeight);
+            const optimaleRichting = bepaalOptimaleRichting(stlContent);
+            
+            // Zoek minZ en maxZ
+            const zMatches = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            let minZ = 999999;
+            let maxZ = 0;
+            
+            zMatches.forEach(match => {
+                const parts = match.split(/\s+/);
+                if (parts.length >= 4) {
+                    const z = parseFloat(parts[3]);
+                    if (!isNaN(z)) {
+                        minZ = Math.min(minZ, z);
+                        maxZ = Math.max(maxZ, z);
+                    }
+                }
+            });
+            
+            if (minZ === 999999) {
+                minZ = 0;
+                maxZ = 30;
+            }
+            
+            const modelHeight = maxZ - minZ;
+            const layers = Math.ceil(modelHeight / layerHeight);
+
+            // Toon analyse resultaat
+            document.getElementById('analysisResult').style.display = 'block';
+            document.getElementById('analysisResult').innerHTML = `
+                <strong>Analyse resultaat:</strong><br>
+                • Model hoogte: ${modelHeight.toFixed(1)}mm (${layers} lagen)<br>
+                • Platte onderkant: ${platteLagen} lagen<br>
+                • Bruggen gedetecteerd: ${bridgeLagen.size}<br>
+                • Optimale richting: ${optimaleRichting === 'horizontal' ? 'Horizontaal' : 'Verticaal'}<br>
+                • Eerste laag snelheid: ${eersteLaagSpeed}mm/s
+            `;
+
+            // Genereer G-code
+            let gcode = `; EasyThreed Mars V9
+; ${fileName}
+; Lagen: ${layers}
+; Platte lagen: ${platteLagen}
+; Richting: ${optimaleRichting}
+
+G21 G90 M82
+G28
+G1 Z5.0 F${travelSpeed * 60}
+M104 S${temp}
+M109 S${temp}
+G92 E0
+G1 X0 Y0 F${travelSpeed * 60}
+G1 Z${layerHeight} F300
+
+`;
+
+            // Rand
+            gcode += generateSkirt(skirtLines, skirtSpeed, travelSpeed, layerHeight);
+
+            // Eerste laag (extra langzaam)
+            gcode += `\n; EERSTE LAAG - langzaam voor hechting
+`;
+            gcode += generateLayer(1, layerHeight, speed, travelSpeed, false, 0, optimaleRichting, true, eersteLaagSpeed);
+
+            // Platte lagen met patroon
+            for (let layer = 2; layer <= platteLagen; layer++) {
+                const z = layer * layerHeight;
+                const isBridge = bridgeLagen.has(layer);
+                const patroon = (layer - 1) % 3;
+                gcode += generateLayer(layer, z, speed, travelSpeed, isBridge, patroon, optimaleRichting, false, eersteLaagSpeed);
+            }
+
+            // Rest van de lagen in optimale richting
+            for (let layer = platteLagen + 1; layer <= layers; layer++) {
+                const z = layer * layerHeight;
+                const isBridge = bridgeLagen.has(layer);
+                gcode += generateLayer(layer, z, speed, travelSpeed, isBridge, undefined, optimaleRichting, false, eersteLaagSpeed);
+            }
+
+            // Einde
+            gcode += `
+G91
+G1 E-2.0 F1800
+G1 Z10 F${travelSpeed * 60}
+G90
+G28 X0 Y0
+M104 S0
+M84`;
+
+            document.getElementById('gcodeOutput').value = gcode;
+            document.getElementById('fileStatus').textContent = 'geconverteerd';
+            document.getElementById('statusText').textContent = 'klaar';
+            document.getElementById('downloadBtn').disabled = false;
+        }
+
+        function downloadGCode() {
+            const gcode = document.getElementById('gcodeOutput').value;
+            const blob = new Blob([gcode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName.replace('.stl', '.gcode').replace('.STL', '.gcode');
+            a.click();
+            URL.revokeObjectURL(url);
+            document.getElementById('statusText').textContent = 'gedownload';
+        }
+    </script>
+</body>
+</html>
