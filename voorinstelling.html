@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>STL to G-Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: Arial, Helvetica, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding: 20px;
+        }
+        
+        .container {
+            background: #000000;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 { 
+            font-size: 24px;
+            font-weight: normal;
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        #dropzone {
+            border: 2px dashed #666666;
+            background: #111111;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #cccccc;
+            font-size: 16px;
+        }
+        
+        #dropzone:hover {
+            background: #1a1a1a;
+            border-color: #888888;
+            color: #ffffff;
+        }
+        
+        .file-info {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .mode-panel {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-title {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .mode-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            background: #1a1a1a;
+            border: 2px solid #333333;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mode-btn:hover {
+            border-color: #666666;
+            background: #222222;
+        }
+        
+        .mode-btn.active {
+            border-color: #4CAF50;
+            background: #1e3a1e;
+        }
+        
+        .mode-details {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #cccccc;
+        }
+        
+        .mode-details span {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .info-text {
+            background: #111111;
+            border-left: 3px solid #666666;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #cccccc;
+            line-height: 1.5;
+        }
+        
+        .button-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: #222222;
+            color: #ffffff;
+            border: 1px solid #444444;
+            border-radius: 6px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #333333;
+            border-color: #666666;
+        }
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .gcode-container {
+            border: 1px solid #333333;
+            border-radius: 8px;
+            background: #111111;
+            margin-bottom: 15px;
+        }
+        
+        #gcodeOutput {
+            width: 100%;
+            height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            background: #111111;
+            color: #ffffff;
+            resize: vertical;
+            overflow: auto;
+        }
+        
+        #gcodeOutput:focus {
+            outline: none;
+        }
+        
+        .status-bar {
+            padding-top: 10px;
+            border-top: 1px solid #333333;
+            font-size: 13px;
+            color: #888888;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .status-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        
+        .analysis-result {
+            background: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #00ff00;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #111111;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>STL to G - Code converter</h1>
+        
+        <div id="dropzone">
+            Sleep STL bestand hier of klik om te bladeren
+            <input type="file" id="fileInput" accept=".stl,.STL" style="display: none;">
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <strong>Bestand:</strong> <span id="fileName"></span> 
+            (<span id="fileSize"></span> bytes) - 
+            <span id="fileStatus">geladen</span>
+        </div>
+
+        <div class="mode-panel">
+            <div class="mode-title">Kies printmodus:</div>
+            
+            <div class="mode-buttons">
+                <button class="mode-btn" id="modeSnel" onclick="setMode('snel')">Snel</button>
+                <button class="mode-btn active" id="modeNormaal" onclick="setMode('normaal')">Normaal</button>
+                <button class="mode-btn" id="modePrecies" onclick="setMode('precies')">Precies</button>
+            </div>
+            
+            <div class="mode-details" id="modeDetails">
+                <span>Normaal</span> - voor de meeste prints<br>
+                • Rand: 2 lijnen (60 mm/s)<br>
+                • Laaghoogte: 0.2 mm<br>
+                • Eerste laag: 15 mm/s<br>
+                • Printsnelheid: 40 mm/s<br>
+                • Bruggen: 15 mm/s<br>
+                • Verplaatsen: 40 mm/s<br>
+                • Temperatuur: 205°C
+            </div>
+        </div>
+
+
+        <div id="analysisResult" class="analysis-result" style="display: none;"></div>
+
+        <div class="button-bar">
+            <button onclick="convertSTL()" id="convertBtn" disabled>Converteer</button>
+            <button onclick="downloadGCode()" id="downloadBtn" disabled>Download</button>
+        </div>
+
+        <div class="gcode-container">
+            <textarea id="gcodeOutput" readonly spellcheck="false">Wacht op STL bestand...</textarea>
+        </div>
+
+        <div class="status-bar">
+            <span>Status: <span class="status-value" id="statusText">wacht op bestand</span></span>
+            <span id="currentModeDisplay">Modus: Normaal</span>
+        </div>
+    </div>
+
+    <script>
+        // Huidige modus
+        let currentMode = 'normaal';
+        
+        // Instellingen per modus
+        const settings = {
+            snel: {
+                skirtLines: 2,
+                skirtSpeed: 40,
+                layerHeight: 0.2,
+                firstLayerSpeed: 30,
+                temp: 205,
+                speed: 40,
+                bridgeSpeed: 20,
+                travelSpeed: 90
+            },
+            normaal: {
+                skirtLines: 2,
+                skirtSpeed: 60,
+                layerHeight: 0.2,
+                firstLayerSpeed: 15,
+                temp: 205,
+                speed: 40,
+                bridgeSpeed: 15,
+                travelSpeed: 40
+            },
+            precies: {
+                skirtLines: 2,
+                skirtSpeed: 15,
+                layerHeight: 0.2,
+                firstLayerSpeed: 10,
+                temp: 200,
+                speed: 25,
+                bridgeSpeed: 10,
+                travelSpeed: 30
+            }
+        };
+
+        let stlContent = '';
+        let fileName = '';
+        let fileSize = 0;
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        
+        dropzone.addEventListener('click', () => fileInput.click());
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#1a1a1a';
+            dropzone.style.borderColor = '#888888';
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.background = '#111111';
+            dropzone.style.borderColor = '#666666';
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#111111';
+            dropzone.style.borderColor = '#666666';
+            handleFile(e.dataTransfer.files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.stl')) {
+                alert('Whoops! Dat bestand is niet goed...');
+                return;
+            }
+            
+            fileName = file.name;
+            fileSize = file.size;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                stlContent = e.target.result;
+                
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('fileName').textContent = fileName;
+                document.getElementById('fileSize').textContent = fileSize;
+                document.getElementById('fileStatus').textContent = 'geladen';
+                document.getElementById('statusText').textContent = 'klaar';
+                
+                document.getElementById('convertBtn').disabled = false;
+            };
+            reader.readAsText(file);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update active class op knoppen
+            document.getElementById('modeSnel').classList.remove('active');
+            document.getElementById('modeNormaal').classList.remove('active');
+            document.getElementById('modePrecies').classList.remove('active');
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+            
+            // Update mode details
+            const s = settings[mode];
+            let modeName = '';
+            if (mode === 'snel') modeName = 'Snel';
+            else if (mode === 'normaal') modeName = 'Normaal';
+            else modeName = 'Precies';
+            
+            document.getElementById('modeDetails').innerHTML = `
+                <span>${modeName}</span> - ${mode === 'snel' ? 'maar minder precies' : mode === 'normaal' ? 'standaard voor de meeste prints' : 'extra langzaam voor beste kwaliteit'}<br>
+                • Rand: ${s.skirtLines} lijnen (${s.skirtSpeed} mm/s)<br>
+                • Laaghoogte: ${s.layerHeight} mm<br>
+                • Eerste laag: ${s.firstLayerSpeed} mm/s<br>
+                • Printsnelheid: ${s.speed} mm/s<br>
+                • Bruggen: ${s.bridgeSpeed} mm/s<br>
+                • Verplaatsen: ${s.travelSpeed} mm/s<br>
+                • Temperatuur: ${s.temp}°C
+            `;
+            
+            document.getElementById('currentModeDisplay').textContent = `Modus: ${modeName}`;
+        }
+
+        function analyseerOndersteLagen(stlContent, layerHeight) {
+            const vertices = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            
+            let zValues = [];
+            vertices.forEach(v => {
+                const parts = v.split(/\s+/);
+                if (parts.length >= 4) {
+                    const z = parseFloat(parts[3]);
+                    if (!isNaN(z)) zValues.push(z);
+                }
+            });
+            
+            if (zValues.length === 0) return 3;
+            
+            const minZ = Math.min(...zValues);
+            
+            let layerCounts = {};
+            zValues.forEach(z => {
+                const layerIndex = Math.floor((z - minZ) / layerHeight);
+                layerCounts[layerIndex] = (layerCounts[layerIndex] || 0) + 1;
+            });
+            
+            let platteLagen = 0;
+            let vorigeCount = 0;
+            let layerIndex = 0;
+            
+            while (layerCounts[layerIndex] !== undefined) {
+                if (layerIndex === 0) {
+                    platteLagen++;
+                    vorigeCount = layerCounts[layerIndex];
+                } else {
+                    if (layerCounts[layerIndex] >= vorigeCount * 0.7) {
+                        platteLagen++;
+                        vorigeCount = layerCounts[layerIndex];
+                    } else {
+                        break;
+                    }
+                }
+                layerIndex++;
+            }
+            
+            return Math.max(3, Math.min(10, platteLagen));
+        }
+
+        function analyseerBruggen(stlContent, layerHeight) {
+            const vertices = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            
+            let zValues = [];
+            vertices.forEach(v => {
+                const parts = v.split(/\s+/);
+                if (parts.length >= 4) {
+                    const z = parseFloat(parts[3]);
+                    if (!isNaN(z)) zValues.push(z);
+                }
+            });
+            
+            if (zValues.length === 0) return new Set();
+            
+            const minZ = Math.min(...zValues);
+            
+            let layerCounts = {};
+            zValues.forEach(z => {
+                const layerIndex = Math.floor((z - minZ) / layerHeight);
+                layerCounts[layerIndex] = (layerCounts[layerIndex] || 0) + 1;
+            });
+            
+            let bridgeLagen = new Set();
+            let vorigeCount = layerCounts[0] || 0;
+            
+            for (let layer = 1; layer < 50; layer++) {
+                if (!layerCounts[layer]) break;
+                
+                if (layerCounts[layer] < vorigeCount * 0.5) {
+                    bridgeLagen.add(layer);
+                    bridgeLagen.add(layer + 1);
+                }
+                vorigeCount = layerCounts[layer];
+            }
+            
+            return bridgeLagen;
+        }
+
+        function bepaalOptimaleRichting(stlContent) {
+            const vertices = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            
+            let minX = 999999, maxX = -999999;
+            let minY = 999999, maxY = -999999;
+            
+            vertices.forEach(v => {
+                const parts = v.split(/\s+/);
+                if (parts.length >= 4) {
+                    const x = parseFloat(parts[1]);
+                    const y = parseFloat(parts[2]);
+                    if (!isNaN(x)) {
+                        minX = Math.min(minX, x);
+                        maxX = Math.max(maxX, x);
+                    }
+                    if (!isNaN(y)) {
+                        minY = Math.min(minY, y);
+                        maxY = Math.max(maxY, y);
+                    }
+                }
+            });
+            
+            const breedte = maxX - minX;
+            const diepte = maxY - minY;
+            
+            return breedte > diepte ? 'horizontal' : 'vertical';
+        }
+
+        function generateSkirt(lijnen, skirtSpeed, travelSpeed, layerHeight) {
+            if (lijnen <= 0) return '';
+            
+            let gcode = `; Rand (skirt/brim)
+`;
+            for (let i = 0; i < lijnen; i++) {
+                const offset = i * 2;
+                gcode += `G1 X${5 + offset} Y5 F${travelSpeed * 60}
+G1 Z${layerHeight} F300
+G1 X35 Y5 E2.0 F${skirtSpeed * 60}
+G1 X35 Y25 E4.0 F${skirtSpeed * 60}
+G1 X5 Y25 E6.0 F${skirtSpeed * 60}
+G1 X5 Y5 E8.0 F${skirtSpeed * 60}
+`;
+            }
+            return gcode;
+        }
+
+        function generateLayer(layerNum, z, speed, travelSpeed, isBridge, patroon, richting, isEersteLaag, eersteLaagSpeed) {
+            const layerSpeed = isEersteLaag ? eersteLaagSpeed : (isBridge ? settings[currentMode].bridgeSpeed : speed);
+            const fSpeed = layerSpeed * 60;
+            const fTravel = travelSpeed * 60;
+            const eBase = layerNum * 0.8;
+            
+            let gcode = `\n; Laag ${layerNum} (Z=${z.toFixed(2)}mm)`;
+            if (isEersteLaag) gcode += ' - EERSTE LAAG';
+            if (isBridge) gcode += ' - BRUG';
+            
+            gcode += `
+G1 Z${z.toFixed(2)} F300
+G92 E0
+G1 F${fSpeed}`;
+
+            if (patroon !== undefined && layerNum <= 10) {
+                if (patroon === 0) {
+                    gcode += `
+G1 X10 Y10 E${(eBase + 1).toFixed(3)}
+G1 X30 Y10 E${(eBase + 3).toFixed(3)}
+G1 X30 Y20 E${(eBase + 4).toFixed(3)}
+G1 X10 Y20 E${(eBase + 6).toFixed(3)}
+G1 X10 Y10 E${(eBase + 7).toFixed(3)}`;
+                }
+                else if (patroon === 1) {
+                    gcode += `
+G1 X10 Y20 E${(eBase + 2).toFixed(3)}
+G1 X30 Y10 E${(eBase + 5).toFixed(3)}
+G1 X20 Y15 E${(eBase + 7).toFixed(3)}
+G1 X10 Y20 E${(eBase + 9).toFixed(3)}`;
+                }
+                else {
+                    gcode += `
+G1 X30 Y20 E${(eBase + 2).toFixed(3)}
+G1 X10 Y10 E${(eBase + 5).toFixed(3)}
+G1 X20 Y15 E${(eBase + 7).toFixed(3)}
+G1 X30 Y20 E${(eBase + 9).toFixed(3)}`;
+                }
+            } 
+            else {
+                if (richting === 'horizontal') {
+                    gcode += `
+G1 X10 Y10 E${(eBase + 1).toFixed(3)}
+G1 X30 Y10 E${(eBase + 3).toFixed(3)}
+G1 X10 Y20 E${(eBase + 5).toFixed(3)}
+G1 X30 Y20 E${(eBase + 7).toFixed(3)}`;
+                } else {
+                    gcode += `
+G1 X10 Y10 E${(eBase + 1).toFixed(3)}
+G1 X10 Y20 E${(eBase + 3).toFixed(3)}
+G1 X30 Y10 E${(eBase + 5).toFixed(3)}
+G1 X30 Y20 E${(eBase + 7).toFixed(3)}`;
+                }
+            }
+            
+            gcode += `\nG1 E-1.0 F${fTravel}
+G1 Z${(z + 0.3).toFixed(2)} F${fTravel}
+G1 X0 Y0 F${fTravel}
+G1 E1.0 F${fSpeed}`;
+            
+            return gcode;
+        }
+
+        function convertSTL() {
+            if (!stlContent) {
+                alert('Eerst STL laden');
+                return;
+            }
+
+            document.getElementById('statusText').textContent = 'bezig met analyseren...';
+
+            // Haal instellingen op van huidige modus
+            const s = settings[currentMode];
+
+            // Analyseer het model
+            const platteLagen = analyseerOndersteLagen(stlContent, s.layerHeight);
+            const bridgeLagen = analyseerBruggen(stlContent, s.layerHeight);
+            const optimaleRichting = bepaalOptimaleRichting(stlContent);
+            
+            // Zoek minZ en maxZ
+            const zMatches = stlContent.match(/vertex[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)[^0-9]*([0-9.-]+)/g) || [];
+            let minZ = 999999;
+            let maxZ = 0;
+            
+            zMatches.forEach(match => {
+                const parts = match.split(/\s+/);
+                if (parts.length >= 4) {
+                    const z = parseFloat(parts[3]);
+                    if (!isNaN(z)) {
+                        minZ = Math.min(minZ, z);
+                        maxZ = Math.max(maxZ, z);
+                    }
+                }
+            });
+            
+            if (minZ === 999999) {
+                minZ = 0;
+                maxZ = 30;
+            }
+            
+            const modelHeight = maxZ - minZ;
+            const layers = Math.ceil(modelHeight / s.layerHeight);
+
+            // Toon analyse resultaat
+            document.getElementById('analysisResult').style.display = 'block';
+            document.getElementById('analysisResult').innerHTML = `
+                <strong>Analyse resultaat:</strong><br>
+                • Model hoogte: ${modelHeight.toFixed(1)}mm (${layers} lagen)<br>
+                • Platte onderkant: ${platteLagen} lagen (patroon)<br>
+                • Bruggen gedetecteerd: ${bridgeLagen.size}<br>
+                • Optimale richting: ${optimaleRichting === 'horizontal' ? 'Horizontaal' : 'Verticaal'}<br>
+                • Modus: ${currentMode === 'snel' ? 'Snel' : currentMode === 'normaal' ? 'Normaal' : 'Precies'}
+            `;
+
+            // Genereer G-code
+            let gcode = `; EasyThreed Mars V9
+; ${fileName}
+; Modus: ${currentMode}
+; Lagen: ${layers}
+; Platte lagen: ${platteLagen}
+; Richting: ${optimaleRichting}
+
+G21 G90 M82
+G28
+G1 Z5.0 F${s.travelSpeed * 60}
+M104 S${s.temp}
+M109 S${s.temp}
+G92 E0
+G1 X0 Y0 F${s.travelSpeed * 60}
+G1 Z${s.layerHeight} F300
+
+`;
+
+            // Rand
+            gcode += generateSkirt(s.skirtLines, s.skirtSpeed, s.travelSpeed, s.layerHeight);
+
+            // Eerste laag
+            gcode += `\n; EERSTE LAAG
+`;
+            gcode += generateLayer(1, s.layerHeight, s.speed, s.travelSpeed, false, 0, optimaleRichting, true, s.firstLayerSpeed);
+
+            // Platte lagen met patroon
+            for (let layer = 2; layer <= platteLagen; layer++) {
+                const z = layer * s.layerHeight;
+                const isBridge = bridgeLagen.has(layer);
+                const patroon = (layer - 1) % 3;
+                gcode += generateLayer(layer, z, s.speed, s.travelSpeed, isBridge, patroon, optimaleRichting, false, s.firstLayerSpeed);
+            }
+
+            // Rest van de lagen in optimale richting
+            for (let layer = platteLagen + 1; layer <= layers; layer++) {
+                const z = layer * s.layerHeight;
+                const isBridge = bridgeLagen.has(layer);
+                gcode += generateLayer(layer, z, s.speed, s.travelSpeed, isBridge, undefined, optimaleRichting, false, s.firstLayerSpeed);
+            }
+
+            // Einde
+            gcode += `
+G91
+G1 E-2.0 F1800
+G1 Z10 F${s.travelSpeed * 60}
+G90
+G28 X0 Y0
+M104 S0
+M84`;
+
+            document.getElementById('gcodeOutput').value = gcode;
+            document.getElementById('fileStatus').textContent = 'geconverteerd';
+            document.getElementById('statusText').textContent = 'klaar';
+            document.getElementById('downloadBtn').disabled = false;
+        }
+
+        function downloadGCode() {
+            const gcode = document.getElementById('gcodeOutput').value;
+            const blob = new Blob([gcode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName.replace('.stl', '.gcode').replace('.STL', '.gcode');
+            a.click();
+            URL.revokeObjectURL(url);
+            document.getElementById('statusText').textContent = 'gedownload';
+        }
+
+        // Initialiseer met normaal
+        setMode('normaal');
+    </script>
+</body>
+</html>
